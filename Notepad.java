@@ -15,11 +15,14 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.JOptionPane;
+import java.net.URI;
 
-class Notepad extends JFrame
+public class Notepad extends JFrame
 {
     private JFrame frame;
     private JTextArea textspace;
+    private JScrollPane spV;
+    private JScrollPane spH;
     private JMenuBar menu;
     private JMenu menu1;
     private JMenu menu2;
@@ -31,10 +34,13 @@ class Notepad extends JFrame
     private JMenuItem file4;
     private boolean FilePresent;
     private String fpath;
+    
     Notepad ()
     {
         frame = new JFrame ("Notepad");
         textspace = new JTextArea();
+        spV = new JScrollPane(textspace);
+        spH = new JScrollPane(textspace);
         menu = new JMenuBar();
         menu1 = new JMenu("File");
         menu2 = new JMenu("More");
@@ -42,7 +48,7 @@ class Notepad extends JFrame
         file2 = new JMenuItem("Open");
         file3 = new JMenuItem("Save");
         file4 = new JMenuItem("Save As");
-        more1 = new JMenuItem("Help");
+        more1 = new JMenuItem("Feedback");
         more2 = new JMenuItem("About");
         fpath = "";
         FilePresent = false;
@@ -59,9 +65,7 @@ class Notepad extends JFrame
         }finally{
              try {
                  os.close();
-             } catch (IOException e) {
-                 e.printStackTrace();
-             }
+             } catch (IOException e) {  }
         }
         JFrame f = new JFrame ("Saved To");
         JOptionPane.showMessageDialog(f,"File saved as "+fpath);
@@ -78,20 +82,16 @@ class Notepad extends JFrame
             try {
                 os = new FileOutputStream(new File(fileToSave.getAbsolutePath()));
                 os.write(texttosave.getBytes(), 0, texttosave.length());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }finally{
+            } catch (IOException e) {   }
+            finally {
                 try {
-                     os.close();
-                    } catch (IOException e) {
-                           e.printStackTrace();
-                    }
+                        os.close();
+                    } catch (IOException e) {   }
             }
+            FilePresent = true; fpath = fileToSave.getAbsolutePath(); frame.setTitle("Notepad - "+fpath);
             JFrame f = new JFrame ("Saved To");
             JOptionPane.showMessageDialog(f,"File saved as "+fileToSave.getAbsolutePath()); 
         }
-        if (fpath !="")
-        { FilePresent = true; }
     }
     private void OpenFileUI()
     {
@@ -101,9 +101,9 @@ class Notepad extends JFrame
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToOpen = fileChooser.getSelectedFile();
             fpath = fileToOpen.getAbsolutePath();
+            frame.setTitle("Notepad - "+fpath);
+            FilePresent = true;
         }
-        if (fpath !="")
-        { FilePresent = true; }
     }
     private void OpenFile()
     {  
@@ -113,8 +113,8 @@ class Notepad extends JFrame
             while((s1=br.readLine())!=null){
                     s2+=s1+"\n";
             } 
-            textspace.setText(s2);  
-            br.close();  
+            textspace.setText(s2);
+            br.close();
         } catch (Exception e) { }
     }
     private void AboutUI ()
@@ -125,18 +125,35 @@ class Notepad extends JFrame
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) { }
-        JOptionPane.showMessageDialog(aboutbox,"Notepad\n\nby Atish Ghosh\n2019\nversion 1.0 Alpha\n "); 
+        JOptionPane.showMessageDialog(aboutbox,"Notepad\n\nby Atish Ghosh\n2019\nversion 1.0 (Unstable)\n "); 
     }
     private void Interface ()
     {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(480,640);
+        textspace.setWrapStyleWord(true);
         frame.getContentPane().add(BorderLayout.NORTH, menu);
         frame.getContentPane().add(BorderLayout.CENTER, textspace);
+        frame.getContentPane().add(BorderLayout.EAST, spV);
+        spV.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        frame.getContentPane().add(BorderLayout.SOUTH, spH);
+        spH.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        spV.setViewportView(textspace);
+        spH.setViewportView(textspace);
+        frame.add(spV);
+        frame.add(spH);
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) { }
+        file1.setAccelerator(KeyStroke.getKeyStroke("control N"));
+        file1.addActionListener(new ActionListener()
+        {
+                public void actionPerformed(ActionEvent arg0) {
+                    // Multithread
+            }
+        });
         menu1.add(file1);
+        file2.setAccelerator(KeyStroke.getKeyStroke("control O"));
         file2.addActionListener(new ActionListener()
         {
                 public void actionPerformed(ActionEvent arg0) {
@@ -145,6 +162,7 @@ class Notepad extends JFrame
             }
         });
         menu1.add(file2);
+        file3.setAccelerator(KeyStroke.getKeyStroke("control S"));
         file3.addActionListener(new ActionListener()
         {
                 public void actionPerformed(ActionEvent arg0) {
@@ -157,6 +175,7 @@ class Notepad extends JFrame
                 }
         });
         menu1.add(file3);
+        file4.setAccelerator(KeyStroke.getKeyStroke("control shift S"));
         file4.addActionListener(new ActionListener()
         {
                 public void actionPerformed(ActionEvent arg0) {
@@ -164,6 +183,16 @@ class Notepad extends JFrame
             }
         });
         menu1.add(file4);
+        more1.addActionListener(new ActionListener()
+        {
+                public void actionPerformed(ActionEvent arg0) {
+                    try {
+                    Desktop desktop = Desktop.getDesktop();
+                    URI uri = URI.create("mailto:atishghosh30@gmail.com?subject=Notepad%20Feedback");
+                    desktop.mail(uri);
+                } catch (Exception e) {}
+            }
+        });
         menu2.add(more1);
         more2.addActionListener(new ActionListener()
         {
@@ -175,8 +204,9 @@ class Notepad extends JFrame
         menu.add(menu1);
         menu.add(menu2);
         frame.setVisible(true);
+        return;
     }
-    void main() throws AWTException
+    void main ()
     {
         Interface();
     }
