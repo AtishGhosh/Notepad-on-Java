@@ -11,49 +11,25 @@ import javax.swing.UIManager;
 import javax.swing.JOptionPane;
 import java.net.URI;
 
-public class Notepad
-{
-    public static void main (String[] args)
-    {
-        NotepadUI notepad = new NotepadUI ();
-        notepad.Interface();
-    }
-}
-class NotepadUI extends JFrame
+class Notepad extends JFrame
 {
     private JFrame frame;
+    JMenuBar menu;
     private JTextArea textspace;
     private JScrollPane spV;
     private JScrollPane spH;
-    private JMenuBar menu;
-    private JMenu menu1;
-    private JMenu menu2;
-    private JMenuItem more1;
-    private JMenuItem more2;
-    private JMenuItem file2;
-    private JMenuItem file3;
-    private JMenuItem file4;
     private boolean FilePresent;
     private String fpath;
-
-    NotepadUI ()
+    Notepad ()
     {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) { }
         frame = new JFrame ("Notepad");
+        menu = new JMenuBar();
         textspace = new JTextArea();
         spV = new JScrollPane(textspace);
         spH = new JScrollPane(textspace);
-        menu = new JMenuBar();
-        menu1 = new JMenu("File");
-        menu2 = new JMenu("More");
-        //file1 = new JMenuItem("New");
-        file2 = new JMenuItem("Open");
-        file3 = new JMenuItem("Save");
-        file4 = new JMenuItem("Save As");
-        more1 = new JMenuItem("Feedback");
-        more2 = new JMenuItem("About");
         fpath = "";
         FilePresent = false;
     }
@@ -69,7 +45,7 @@ class NotepadUI extends JFrame
         }finally{
             try {
                 os.close();
-            } catch (IOException e) {  }
+            } catch (IOException e) { }
         }
         JFrame f = new JFrame ("Saved To");
         JOptionPane.showMessageDialog(f,"File saved as "+fpath);
@@ -86,11 +62,11 @@ class NotepadUI extends JFrame
             try {
                 os = new FileOutputStream(new File(fileToSave.getAbsolutePath()));
                 os.write(texttosave.getBytes(), 0, texttosave.length());
-            } catch (IOException e) {   }
+            } catch (IOException e) {  }
             finally {
                 try {
                     os.close();
-                } catch (IOException e) {   }
+                } catch (IOException e) {  }
             }
             FilePresent = true; fpath = fileToSave.getAbsolutePath(); frame.setTitle("Notepad - "+fpath);
             JFrame f = new JFrame ("Saved To");
@@ -107,10 +83,7 @@ class NotepadUI extends JFrame
             fpath = fileToOpen.getAbsolutePath();
             frame.setTitle("Notepad - "+fpath);
             FilePresent = true;
-        }
-    }
-    private void OpenFile()
-    {
+        } else {FilePresent = false;}
         try {
             BufferedReader br=new BufferedReader(new FileReader(fpath));
             String s1="",s2="";
@@ -129,17 +102,31 @@ class NotepadUI extends JFrame
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) { }
-        JOptionPane.showMessageDialog(aboutbox,"Notepad\n\nby Atish Ghosh\n2019\nversion 1.0 (Unstable)\n ");
+        JOptionPane.showMessageDialog(aboutbox,"\nNotepad\n\nby Atish Ghosh\n2019\nversion 1.0 (Unstable)\n ");
     }
-    public void Interface ()
+    private void MenuBarUI()
     {
-        
+        JMenu menu1 = new JMenu("File");
+        JMenu menu2 = new JMenu("More");
+        JMenuItem more1 = new JMenuItem("Feedback");
+        JMenuItem more2 = new JMenuItem("About");
+        JMenuItem file1 = new JMenuItem("New      ");
+        JMenuItem file2 = new JMenuItem("Open     ");
+        JMenuItem file3 = new JMenuItem("Save     ");
+        JMenuItem file4 = new JMenuItem("Save As  ");
+        file1.setAccelerator(KeyStroke.getKeyStroke("control N"));
+        file1.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent arg0) {
+                new Notepad().Interface();
+            }
+        });
+        menu1.add(file1);
         file2.setAccelerator(KeyStroke.getKeyStroke("control O"));
         file2.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent arg0) {
                 OpenFileUI();
-                OpenFile();
             }
         });
         menu1.add(file2);
@@ -171,7 +158,7 @@ class NotepadUI extends JFrame
                     Desktop desktop = Desktop.getDesktop();
                     URI uri = URI.create("mailto:atishghosh30@gmail.com?subject=Notepad%20Feedback");
                     desktop.mail(uri);
-                } catch (Exception e) {}
+                } catch (Exception e) {  }
             }
         });
         menu2.add(more1);
@@ -184,12 +171,15 @@ class NotepadUI extends JFrame
         menu2.add(more2);
         menu.add(menu1);
         menu.add(menu2);
+    }
+    public void Interface ()
+    {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         textspace.setWrapStyleWord(true);
+        MenuBarUI();
         spH.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        //spV.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-        frame.getContentPane().add(BorderLayout.CENTER, textspace);
         frame.getContentPane().add(BorderLayout.NORTH, menu);
+        frame.getContentPane().add(BorderLayout.CENTER, textspace);
         frame.getContentPane().add(BorderLayout.SOUTH, spH);
         frame.getContentPane().add(BorderLayout.EAST, spV);
         spH.setViewportView(textspace);
@@ -198,5 +188,9 @@ class NotepadUI extends JFrame
         frame.add(spV);
         frame.setSize(480,640);
         frame.setVisible(true);
+    }
+    public static void main (String[] args)
+    {
+        new Notepad().Interface();
     }
 }
