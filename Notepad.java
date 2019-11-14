@@ -38,6 +38,9 @@ class NotepadUI extends JFrame
 
     NotepadUI ()
     {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) { }
         frame = new JFrame ("Notepad");
         textspace = new JTextArea();
         spV = new JScrollPane(textspace);
@@ -130,9 +133,7 @@ class NotepadUI extends JFrame
     }
     public void Interface ()
     {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) { }
+        
         file2.setAccelerator(KeyStroke.getKeyStroke("control O"));
         file2.addActionListener(new ActionListener()
         {
