@@ -11,6 +11,7 @@ import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.JOptionPane;
 import java.net.URI;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Notepad extends JFrame
 {
@@ -59,6 +60,8 @@ public class Notepad extends JFrame
     {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Save As");
+        fileChooser.setSelectedFile(new File("Untitled.txt"));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Text document (.txt)", "txt"));
         int userSelection = fileChooser.showSaveDialog(this);
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToSave = fileChooser.getSelectedFile();
@@ -177,6 +180,14 @@ public class Notepad extends JFrame
         menu.add(menu1);
         menu.add(menu2);
     }
+    private void pullThePlug()
+    {
+        WindowEvent wev = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
+        Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(wev);
+        setVisible(false);
+        dispose();
+        System.exit(0);
+    }
     public void Interface ()
     {
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -191,6 +202,8 @@ public class Notepad extends JFrame
                             if (FilePresent == false) {
                                 JFileChooser fileChooser = new JFileChooser();
                                 fileChooser.setDialogTitle("Save As");
+                                fileChooser.setSelectedFile(new File("Untitled.txt"));
+                                fileChooser.setFileFilter(new FileNameExtensionFilter("Text document (.txt)", "txt"));
                                 int userSelection = fileChooser.showSaveDialog(frame);
                                 if (userSelection == JFileChooser.APPROVE_OPTION) {
                                     File fileToSave = fileChooser.getSelectedFile();
@@ -204,6 +217,7 @@ public class Notepad extends JFrame
                                         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                                         frame.setVisible(false);
                                         frame.dispose();
+                                        pullThePlug();
                                     } catch (IOException e2) {  }
                                     finally {
                                         try {
@@ -220,6 +234,7 @@ public class Notepad extends JFrame
                             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                             frame.setVisible(false);
                             frame.dispose();
+                            pullThePlug();
                         }
                         else
                         {}
