@@ -11,7 +11,7 @@ import javax.swing.UIManager;
 import javax.swing.JOptionPane;
 import java.net.URI;
 
-class Notepad extends JFrame
+public class Notepad extends JFrame
 {
     private JFrame frame;
     JMenuBar menu;
@@ -32,6 +32,10 @@ class Notepad extends JFrame
         spH = new JScrollPane(textspace);
         fpath = "";
         FilePresent = false;
+    }
+    public static void main (String[] args)
+    {
+        new Notepad().Interface();
     }
     private void SaveFileUI()
     {
@@ -188,9 +192,5 @@ class Notepad extends JFrame
         frame.add(spV);
         frame.setSize(480,640);
         frame.setVisible(true);
-    }
-    public static void main (String[] args)
-    {
-        new Notepad().Interface();
     }
 }
