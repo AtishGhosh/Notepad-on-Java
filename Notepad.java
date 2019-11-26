@@ -2,6 +2,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.io.*;
 
+import java.awt.event.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -14,7 +15,7 @@ import java.net.URI;
 public class Notepad extends JFrame
 {
     private JFrame frame;
-    JMenuBar menu;
+    private JMenuBar menu;
     private JTextArea textspace;
     private JScrollPane spV;
     private JScrollPane spH;
@@ -178,7 +179,54 @@ public class Notepad extends JFrame
     }
     public void Interface ()
     {
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                frame.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        int result = JOptionPane.showConfirmDialog(frame, "Save file before closing?");
+                        if (result==JOptionPane.YES_OPTION){
+                            if (FilePresent == false) {
+                                JFileChooser fileChooser = new JFileChooser();
+                                fileChooser.setDialogTitle("Save As");
+                                int userSelection = fileChooser.showSaveDialog(frame);
+                                if (userSelection == JFileChooser.APPROVE_OPTION) {
+                                    File fileToSave = fileChooser.getSelectedFile();
+                                    String texttosave = textspace.getText();
+                                    OutputStream os = null;
+                                    try {
+                                        os = new FileOutputStream(new File(fileToSave.getAbsolutePath()));
+                                        os.write(texttosave.getBytes(), 0, texttosave.length());
+                                        JFrame f = new JFrame ("Saved To");
+                                        JOptionPane.showMessageDialog(f,"File saved as "+fileToSave.getAbsolutePath());
+                                        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                                        frame.setVisible(false);
+                                        frame.dispose();
+                                    } catch (IOException e2) {  }
+                                    finally {
+                                        try {
+                                            os.close();
+                                        } catch (IOException e3) {  }
+                                    }
+                                }
+                            }
+                            else {
+                                SaveFileUI();
+                            }
+                        }
+                        else if (result==JOptionPane.NO_OPTION) {
+                            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                            frame.setVisible(false);
+                            frame.dispose();
+                        }
+                        else
+                        {}
+                    }
+                });
+            }
+        };
         textspace.setWrapStyleWord(true);
         MenuBarUI();
         spH.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
@@ -192,5 +240,6 @@ public class Notepad extends JFrame
         frame.add(spV);
         frame.setSize(480,640);
         frame.setVisible(true);
+        SwingUtilities.invokeLater(r);
     }
 }
