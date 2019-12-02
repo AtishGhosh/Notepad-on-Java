@@ -60,7 +60,7 @@ public class Notepad extends JFrame
     {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Save As");
-        fileChooser.setSelectedFile(new File("Untitled.txt"));
+        fileChooser.setSelectedFile(new File("Untitled"));
         fileChooser.setFileFilter(new FileNameExtensionFilter("Text document (.txt)", "txt"));
         int userSelection = fileChooser.showSaveDialog(this);
         if (userSelection == JFileChooser.APPROVE_OPTION) {
@@ -85,6 +85,7 @@ public class Notepad extends JFrame
     {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Open");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Text document (.txt)", "txt"));
         int userSelection = fileChooser.showOpenDialog(this);
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToOpen = fileChooser.getSelectedFile();
@@ -217,7 +218,6 @@ public class Notepad extends JFrame
                                         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                                         frame.setVisible(false);
                                         frame.dispose();
-                                        pullThePlug();
                                     } catch (IOException e2) {  }
                                     finally {
                                         try {
@@ -228,13 +228,15 @@ public class Notepad extends JFrame
                             }
                             else {
                                 SaveFileUI();
+                                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                                frame.setVisible(false);
+                                frame.dispose();
                             }
                         }
                         else if (result==JOptionPane.NO_OPTION) {
                             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                             frame.setVisible(false);
                             frame.dispose();
-                            pullThePlug();
                         }
                         else
                         {}
