@@ -56,6 +56,17 @@ public class Notepad extends JFrame
         JFrame f = new JFrame ("Saved To");
         JOptionPane.showMessageDialog(f,"File saved as "+fpath);
     }
+    private String getExtensionForFilter (javax.swing.filechooser.FileFilter filtername)
+    {
+        if (filtername.getDescription() == "Text document (.txt)")
+        {
+            return ".txt";
+        }
+        else
+        {
+            return "";
+        }
+    }
     private void SaveFileAsUI()
     {
         JFileChooser fileChooser = new JFileChooser();
@@ -65,6 +76,12 @@ public class Notepad extends JFrame
         int userSelection = fileChooser.showSaveDialog(this);
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToSave = fileChooser.getSelectedFile();
+            fpath = fileToSave.getAbsolutePath();
+            String extension = getExtensionForFilter(fileChooser.getFileFilter());
+            if(!fpath.endsWith(extension))
+            {
+                fileToSave = new File(fpath + extension);
+            }
             String texttosave = textspace.getText();
             OutputStream os = null;
             try {
@@ -76,7 +93,7 @@ public class Notepad extends JFrame
                     os.close();
                 } catch (IOException e) {  }
             }
-            FilePresent = true; fpath = fileToSave.getAbsolutePath(); frame.setTitle("Notepad - "+fpath);
+            FilePresent = true; frame.setTitle("Notepad - "+fileToSave.getName());
             JFrame f = new JFrame ("Saved To");
             JOptionPane.showMessageDialog(f,"File saved as "+fileToSave.getAbsolutePath());
         }
@@ -201,30 +218,13 @@ public class Notepad extends JFrame
                         int result = JOptionPane.showConfirmDialog(frame, "Save file before closing?");
                         if (result==JOptionPane.YES_OPTION){
                             if (FilePresent == false) {
-                                JFileChooser fileChooser = new JFileChooser();
-                                fileChooser.setDialogTitle("Save As");
-                                fileChooser.setSelectedFile(new File("Untitled.txt"));
-                                fileChooser.setFileFilter(new FileNameExtensionFilter("Text document (.txt)", "txt"));
-                                int userSelection = fileChooser.showSaveDialog(frame);
-                                if (userSelection == JFileChooser.APPROVE_OPTION) {
-                                    File fileToSave = fileChooser.getSelectedFile();
-                                    String texttosave = textspace.getText();
-                                    OutputStream os = null;
-                                    try {
-                                        os = new FileOutputStream(new File(fileToSave.getAbsolutePath()));
-                                        os.write(texttosave.getBytes(), 0, texttosave.length());
-                                        JFrame f = new JFrame ("Saved To");
-                                        JOptionPane.showMessageDialog(f,"File saved as "+fileToSave.getAbsolutePath());
-                                        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                                        frame.setVisible(false);
-                                        frame.dispose();
-                                    } catch (IOException e2) {  }
-                                    finally {
-                                        try {
-                                            os.close();
-                                        } catch (IOException e3) {  }
-                                    }
+                                try {
+                                    SaveFileAsUI();
+                                    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                                    frame.setVisible(false);
+                                    frame.dispose();
                                 }
+                                catch (Exception e1) {}
                             }
                             else {
                                 SaveFileUI();
