@@ -12,6 +12,7 @@ import javax.swing.UIManager;
 import javax.swing.JOptionPane;
 import java.net.URI;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.GraphicsEnvironment;
 
 public class Notepad extends JFrame
 {
@@ -22,6 +23,9 @@ public class Notepad extends JFrame
     private JScrollPane spH;
     private boolean FilePresent;
     private String fpath;
+    private String fontType;
+    private int fontStyle;
+    private int fontSize;
     Notepad ()
     {
         try {
@@ -34,6 +38,9 @@ public class Notepad extends JFrame
         spH = new JScrollPane(textspace);
         fpath = "";
         FilePresent = false;
+        fontType = "Dialog";
+        fontStyle = Font.PLAIN;
+        fontSize = 12;
     }
     public static void main (String[] args)
     {
@@ -107,12 +114,10 @@ public class Notepad extends JFrame
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToOpen = fileChooser.getSelectedFile();
             String extension = getExtensionForFilter(fileChooser.getFileFilter());
-            if(!fpath.endsWith(extension))
-            {
+            if(!fpath.endsWith(extension)) {
                 fileToOpen = new File(fpath + extension);
             }
-            if (!fileToOpen.exists())
-            {
+            if (!fileToOpen.exists()) {
                 JFrame f = new JFrame ("Saved To");
                 JOptionPane.showMessageDialog(f,fileToOpen.getName()+" does not exist in this folder.");
             }
@@ -140,16 +145,88 @@ public class Notepad extends JFrame
         } catch (Exception e) { }
         JOptionPane.showMessageDialog(aboutbox,"\nNotepad\n\nby Atish Ghosh\n2019\nversion 1.0 (Unstable)\n ");
     }
-    private void MenuBarUI()
+    private void FontTypeUI ()
+    {
+        JFrame f = new JFrame ("Font Type");
+        JOptionPane optionPane = new JOptionPane();
+        GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        String[] fontnames = e.getAvailableFontFamilyNames();
+        int i;
+        for (i = fontnames.length -1; i > 0; i--) {
+            if ( fontnames[i] == fontType)
+            { break; }
+        }
+        String selected = (String)optionPane.showInputDialog(f, "Select Font Type", "Font Type", JOptionPane.QUESTION_MESSAGE, null, fontnames, fontnames[i]);
+        if (selected != null)
+        {
+            fontType = selected;
+            textspace.setFont(new Font(fontType, fontStyle, fontSize));
+        }
+    }
+    private void FontSizeUI ()
+    {
+        JFrame f = new JFrame ("Font Type");
+        JOptionPane optionPane = new JOptionPane();
+        String newFontSize = JOptionPane.showInputDialog(f,"Enter Font Size", "12");
+        int selected = 0;
+        try {
+             selected = Integer.parseInt(newFontSize);
+        }
+        catch (Exception e) {
+            if ( newFontSize != null )
+            {JOptionPane.showMessageDialog(f, "Font size requires a number.");}
+            return;
+        }
+        if (selected == 0 )
+        {
+            JOptionPane.showMessageDialog(f, "Font size cannot be zero.");
+        }
+        else if (selected < 0 )
+        {
+            JOptionPane.showMessageDialog(f, "Font size requires a positive number.");
+        }
+        else
+        {
+            fontSize = selected;
+            textspace.setFont(new Font(fontType, fontStyle, fontSize));
+        }
+    }
+    private void FontStyleUI ()
+    {
+        JFrame f = new JFrame ("Font Type");
+        JOptionPane optionPane = new JOptionPane();
+        String[] fontstyles = {"Plain","Bold","Italic"};
+        int i=0;
+        if (fontStyle==Font.BOLD) { i=1; }
+        else if (fontStyle==Font.ITALIC) { i=2; }
+        String selected = (String)optionPane.showInputDialog(f, "Select Font Style", "Font Style", JOptionPane.QUESTION_MESSAGE, null, fontstyles, fontstyles[i]);
+        if (selected != null)
+        {
+            if (selected=="Plain") { fontStyle = Font.PLAIN; }
+            else if (selected=="Bold") { fontStyle = Font.BOLD; }
+            else if (selected=="Italic") { fontStyle = Font.ITALIC; }
+            else {return;}
+            textspace.setFont(new Font(fontType, fontStyle, fontSize));
+        }
+        else {return;}
+    }
+    private void MenuBarUI ()
     {
         JMenu menu1 = new JMenu("File");
-        JMenu menu2 = new JMenu("More");
+        JMenu menu2 = new JMenu("Edit");
+        JMenu menu3 = new JMenu("More");
         JMenuItem more1 = new JMenuItem("Feedback");
         JMenuItem more2 = new JMenuItem("About");
+        JMenu edit1 = new JMenu("Font");
+        JMenuItem font1 = new JMenuItem("Type");
+        JMenuItem font2 = new JMenuItem("Size");
+        JMenuItem font3 = new JMenuItem("Style");
         JMenuItem file1 = new JMenuItem("New      ");
         JMenuItem file2 = new JMenuItem("Open     ");
         JMenuItem file3 = new JMenuItem("Save     ");
         JMenuItem file4 = new JMenuItem("Save As  ");
+        
+        // JMenu "File"
         file1.setAccelerator(KeyStroke.getKeyStroke("control N"));
         file1.addActionListener(new ActionListener()
         {
@@ -197,16 +274,43 @@ public class Notepad extends JFrame
                 } catch (Exception e) {  }
             }
         });
-        menu2.add(more1);
+        
+        // JMenu "Edit"
+        font1.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent arg0) {
+                FontTypeUI();
+            }
+        });
+        edit1.add(font1);
+        font2.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent arg0) {
+                FontSizeUI();
+            }
+        });
+        edit1.add(font2);
+        font3.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent arg0) {
+                FontStyleUI();
+            }
+        });
+        edit1.add(font3);
+        menu2.add(edit1);
+        
+        // JMenu "More"
+        menu3.add(more1);
         more2.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent arg0) {
                 AboutUI();
             }
         });
-        menu2.add(more2);
+        menu3.add(more2);
         menu.add(menu1);
         menu.add(menu2);
+        menu.add(menu3);
     }
     private void SaveFileAsOnClose ()
     {
@@ -276,7 +380,7 @@ public class Notepad extends JFrame
                             frame.dispose();
                         }
                         else
-                        {}
+                        {  }
                     }
                 });
             }
