@@ -106,8 +106,18 @@ public class Notepad extends JFrame
         int userSelection = fileChooser.showOpenDialog(this);
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToOpen = fileChooser.getSelectedFile();
+            String extension = getExtensionForFilter(fileChooser.getFileFilter());
+            if(!fpath.endsWith(extension))
+            {
+                fileToOpen = new File(fpath + extension);
+            }
+            if (!fileToOpen.exists())
+            {
+                JFrame f = new JFrame ("Saved To");
+                JOptionPane.showMessageDialog(f,fileToOpen.getName()+" does not exist in this folder.");
+            }
             fpath = fileToOpen.getAbsolutePath();
-            frame.setTitle("Notepad - "+fpath);
+            frame.setTitle("Notepad - "+fileToOpen.getName());
             FilePresent = true;
         } else {FilePresent = false;}
         try {
@@ -198,6 +208,39 @@ public class Notepad extends JFrame
         menu.add(menu1);
         menu.add(menu2);
     }
+    private void SaveFileAsOnClose ()
+    {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save As");
+        fileChooser.setSelectedFile(new File("Untitled"));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Text document (.txt)", "txt"));
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            fpath = fileToSave.getAbsolutePath();
+            String extension = getExtensionForFilter(fileChooser.getFileFilter());
+            if(!fpath.endsWith(extension))
+            {
+                fileToSave = new File(fpath + extension);
+            }
+            String texttosave = textspace.getText();
+            OutputStream os = null;
+            try {
+                os = new FileOutputStream(new File(fileToSave.getAbsolutePath()));
+                os.write(texttosave.getBytes(), 0, texttosave.length());
+            } catch (IOException e) {  }
+            finally {
+                try {
+                    os.close();
+                } catch (IOException e) {  }
+            }
+            JFrame f = new JFrame ("Saved To");
+            JOptionPane.showMessageDialog(f,"File saved as "+fileToSave.getAbsolutePath());
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.setVisible(false);
+            frame.dispose();
+        }
+    }
     private void pullThePlug()
     {
         WindowEvent wev = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
@@ -218,13 +261,7 @@ public class Notepad extends JFrame
                         int result = JOptionPane.showConfirmDialog(frame, "Save file before closing?");
                         if (result==JOptionPane.YES_OPTION){
                             if (FilePresent == false) {
-                                try {
-                                    SaveFileAsUI();
-                                    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                                    frame.setVisible(false);
-                                    frame.dispose();
-                                }
-                                catch (Exception e1) {}
+                                SaveFileAsOnClose();
                             }
                             else {
                                 SaveFileUI();
