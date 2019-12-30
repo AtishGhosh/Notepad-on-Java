@@ -12,6 +12,7 @@ import javax.swing.UIManager;
 import javax.swing.JOptionPane;
 import java.net.URI;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.GraphicsEnvironment;
 
 public class Notepad extends JFrame
 {
@@ -22,6 +23,9 @@ public class Notepad extends JFrame
     private JScrollPane spH;
     private boolean FilePresent;
     private String fpath;
+    private String fontType;
+    private int fontStyle;
+    private int fontSize;
     Notepad ()
     {
         try {
@@ -34,6 +38,9 @@ public class Notepad extends JFrame
         spH = new JScrollPane(textspace);
         fpath = "";
         FilePresent = false;
+        fontType = "Dialog";
+        fontStyle = Font.PLAIN;
+        fontSize = 12;
     }
     public static void main (String[] args)
     {
@@ -56,15 +63,32 @@ public class Notepad extends JFrame
         JFrame f = new JFrame ("Saved To");
         JOptionPane.showMessageDialog(f,"File saved as "+fpath);
     }
+    private String getExtensionForFilter (javax.swing.filechooser.FileFilter filtername)
+    {
+        if (filtername.getDescription() == "Text document (.txt)")
+        {
+            return ".txt";
+        }
+        else
+        {
+            return "";
+        }
+    }
     private void SaveFileAsUI()
     {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Save As");
-        fileChooser.setSelectedFile(new File("Untitled.txt"));
+        fileChooser.setSelectedFile(new File("Untitled"));
         fileChooser.setFileFilter(new FileNameExtensionFilter("Text document (.txt)", "txt"));
         int userSelection = fileChooser.showSaveDialog(this);
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToSave = fileChooser.getSelectedFile();
+            fpath = fileToSave.getAbsolutePath();
+            String extension = getExtensionForFilter(fileChooser.getFileFilter());
+            if(!fpath.endsWith(extension))
+            {
+                fileToSave = new File(fpath + extension);
+            }
             String texttosave = textspace.getText();
             OutputStream os = null;
             try {
@@ -76,21 +100,32 @@ public class Notepad extends JFrame
                     os.close();
                 } catch (IOException e) {  }
             }
-            FilePresent = true; fpath = fileToSave.getAbsolutePath(); frame.setTitle("Notepad - "+fpath);
+            FilePresent = true; frame.setTitle("Notepad - "+fileToSave.getName());
             JFrame f = new JFrame ("Saved To");
             JOptionPane.showMessageDialog(f,"File saved as "+fileToSave.getAbsolutePath());
         }
     }
-    private void OpenFileUI()
+    private void OpenFileUI ()
     {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Open");
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Text document (.txt)", "txt"));
         int userSelection = fileChooser.showOpenDialog(this);
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToOpen = fileChooser.getSelectedFile();
-            fpath = fileToOpen.getAbsolutePath();
-            frame.setTitle("Notepad - "+fpath);
-            FilePresent = true;
+            String extension = getExtensionForFilter(fileChooser.getFileFilter());
+            if(!((String)(fileToOpen.getName())).endsWith(extension)) {
+                fileToOpen = new File(fileToOpen.getAbsolutePath() + extension);
+            }
+            if (!fileToOpen.exists()) {
+                JFrame f = new JFrame ("Saved To");
+                JOptionPane.showMessageDialog(f,fileToOpen.getName()+" does not exist in this folder.");
+            }
+            else {
+                fpath = fileToOpen.getAbsolutePath();
+                frame.setTitle("Notepad - " + fileToOpen.getName());
+                FilePresent = true;
+            }
         } else {FilePresent = false;}
         try {
             BufferedReader br=new BufferedReader(new FileReader(fpath));
@@ -110,18 +145,102 @@ public class Notepad extends JFrame
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) { }
-        JOptionPane.showMessageDialog(aboutbox,"\nNotepad\n\nby Atish Ghosh\n2019\nversion 1.0 (Unstable)\n ");
+        JOptionPane.showMessageDialog(aboutbox," \nNotepad\n\nby Atish Ghosh\n2019\nversion 1.0\n ");
     }
-    private void MenuBarUI()
+    private void FontTypeUI ()
+    {
+        JFrame f = new JFrame ("Font Type");
+        JOptionPane optionPane = new JOptionPane();
+        GraphicsEnvironment e = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        String[] fontnames = e.getAvailableFontFamilyNames();
+        int i;
+        for (i = fontnames.length -1; i > 0; i--) {
+            if ( fontnames[i] == fontType)
+            { break; }
+        }
+        String selected = (String)optionPane.showInputDialog(f, "Select Font Type", "Font Type", JOptionPane.QUESTION_MESSAGE, null, fontnames, fontnames[i]);
+        if (selected != null)
+        {
+            fontType = selected;
+            textspace.setFont(new Font(fontType, fontStyle, fontSize));
+        }
+    }
+    private void FontSizeUI ()
+    {
+        JFrame f = new JFrame ("Font Type");
+        JOptionPane optionPane = new JOptionPane();
+        String newFontSize = JOptionPane.showInputDialog(f,"Enter Font Size", fontSize);
+        int selected = 0;
+        try {
+            selected = Integer.parseInt(newFontSize);
+        }
+        catch (Exception e) {
+            if ( newFontSize != null )
+            {JOptionPane.showMessageDialog(f, "Font size requires a number.");}
+            return;
+        }
+        if (selected == 0 )
+        {
+            JOptionPane.showMessageDialog(f, "Font size cannot be zero.");
+        }
+        else if (selected < 0 )
+        {
+            JOptionPane.showMessageDialog(f, "Font size requires a positive number.");
+        }
+        else
+        {
+            fontSize = selected;
+            textspace.setFont(new Font(fontType, fontStyle, fontSize));
+        }
+    }
+    private void FontStyleUI ()
+    {
+        JFrame f = new JFrame ("Font Type");
+        JOptionPane optionPane = new JOptionPane();
+        String[] fontstyles = {"Plain","Bold","Italic"};
+        int i=0;
+        if (fontStyle==Font.BOLD) { i=1; }
+        else if (fontStyle==Font.ITALIC) { i=2; }
+        String selected = (String)optionPane.showInputDialog(f, "Select Font Style", "Font Style", JOptionPane.QUESTION_MESSAGE, null, fontstyles, fontstyles[i]);
+        if (selected != null)
+        {
+            if (selected=="Plain") { fontStyle = Font.PLAIN; }
+            else if (selected=="Bold") { fontStyle = Font.BOLD; }
+            else if (selected=="Italic") { fontStyle = Font.ITALIC; }
+            else {return;}
+            textspace.setFont(new Font(fontType, fontStyle, fontSize));
+        }
+        else {return;}
+    }
+    private void TextUI ()
+    {
+        JFrame f = new JFrame ("Theme");
+        JOptionPane optionPane = new JOptionPane();
+    }
+    private void BackgroundUI ()
+    {
+
+    }
+    private void MenuBarUI ()
     {
         JMenu menu1 = new JMenu("File");
-        JMenu menu2 = new JMenu("More");
+        JMenu menu2 = new JMenu("Edit");
+        JMenu menu3 = new JMenu("More");
         JMenuItem more1 = new JMenuItem("Feedback");
         JMenuItem more2 = new JMenuItem("About");
+        JMenu edit1 = new JMenu("Font");
+        JMenuItem font1 = new JMenuItem("Type");
+        JMenuItem font2 = new JMenuItem("Size");
+        JMenuItem font3 = new JMenuItem("Style");
+        JMenu edit2 = new JMenu("Theme");
+        JMenuItem theme1 = new JMenuItem ("Text");
+        JMenuItem theme2 = new JMenuItem ("Background");
         JMenuItem file1 = new JMenuItem("New      ");
         JMenuItem file2 = new JMenuItem("Open     ");
         JMenuItem file3 = new JMenuItem("Save     ");
         JMenuItem file4 = new JMenuItem("Save As  ");
+
+        // JMenu "File"
         file1.setAccelerator(KeyStroke.getKeyStroke("control N"));
         file1.addActionListener(new ActionListener()
         {
@@ -169,16 +288,93 @@ public class Notepad extends JFrame
                 } catch (Exception e) {  }
             }
         });
-        menu2.add(more1);
+
+        // JMenu "Edit"
+        font1.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent arg0) {
+                FontTypeUI();
+            }
+        });
+        edit1.add(font1);
+        font2.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent arg0) {
+                FontSizeUI();
+            }
+        });
+        edit1.add(font2);
+        font3.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent arg0) {
+                FontStyleUI();
+            }
+        });
+        edit1.add(font3);
+        menu2.add(edit1);
+        theme1.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent arg0) {
+                TextUI();
+            }
+        });
+        edit2.add(theme1);
+        theme2.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent arg0) {
+                BackgroundUI();
+            }
+        });
+        edit2.add(theme2);
+        menu2.add(edit2);
+
+        // JMenu "More"
+        menu3.add(more1);
         more2.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent arg0) {
                 AboutUI();
             }
         });
-        menu2.add(more2);
+        menu3.add(more2);
+
+
         menu.add(menu1);
         menu.add(menu2);
+        menu.add(menu3);
+    }
+    private void SaveFileAsOnClose ()
+    {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Save As");
+        fileChooser.setSelectedFile(new File("Untitled"));
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Text document (.txt)", "txt"));
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            File fileToSave = fileChooser.getSelectedFile();
+            fpath = fileToSave.getAbsolutePath();
+            String extension = getExtensionForFilter(fileChooser.getFileFilter());
+            if(!fpath.endsWith(extension))
+            {
+                fileToSave = new File(fpath + extension);
+            }
+            String texttosave = textspace.getText();
+            OutputStream os = null;
+            try {
+                os = new FileOutputStream(new File(fileToSave.getAbsolutePath()));
+                os.write(texttosave.getBytes(), 0, texttosave.length());
+            } catch (IOException e) {  }
+            finally {
+                try {
+                    os.close();
+                } catch (IOException e) {  }
+            }
+            JFrame f = new JFrame ("Saved To");
+            JOptionPane.showMessageDialog(f,"File saved as "+fileToSave.getAbsolutePath());
+            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            frame.setVisible(false);
+            frame.dispose();
+        }
     }
     private void pullThePlug()
     {
@@ -200,50 +396,29 @@ public class Notepad extends JFrame
                         int result = JOptionPane.showConfirmDialog(frame, "Save file before closing?");
                         if (result==JOptionPane.YES_OPTION){
                             if (FilePresent == false) {
-                                JFileChooser fileChooser = new JFileChooser();
-                                fileChooser.setDialogTitle("Save As");
-                                fileChooser.setSelectedFile(new File("Untitled.txt"));
-                                fileChooser.setFileFilter(new FileNameExtensionFilter("Text document (.txt)", "txt"));
-                                int userSelection = fileChooser.showSaveDialog(frame);
-                                if (userSelection == JFileChooser.APPROVE_OPTION) {
-                                    File fileToSave = fileChooser.getSelectedFile();
-                                    String texttosave = textspace.getText();
-                                    OutputStream os = null;
-                                    try {
-                                        os = new FileOutputStream(new File(fileToSave.getAbsolutePath()));
-                                        os.write(texttosave.getBytes(), 0, texttosave.length());
-                                        JFrame f = new JFrame ("Saved To");
-                                        JOptionPane.showMessageDialog(f,"File saved as "+fileToSave.getAbsolutePath());
-                                        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                                        frame.setVisible(false);
-                                        frame.dispose();
-                                        pullThePlug();
-                                    } catch (IOException e2) {  }
-                                    finally {
-                                        try {
-                                            os.close();
-                                        } catch (IOException e3) {  }
-                                    }
-                                }
+                                SaveFileAsOnClose();
                             }
                             else {
                                 SaveFileUI();
+                                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                                frame.setVisible(false);
+                                frame.dispose();
                             }
                         }
                         else if (result==JOptionPane.NO_OPTION) {
                             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                             frame.setVisible(false);
                             frame.dispose();
-                            pullThePlug();
                         }
                         else
-                        {}
+                        {  }
                     }
                 });
             }
         };
         textspace.setWrapStyleWord(true);
         MenuBarUI();
+        textspace.setFont(new Font(fontType, fontStyle, fontSize));
         spH.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         frame.getContentPane().add(BorderLayout.NORTH, menu);
         frame.getContentPane().add(BorderLayout.CENTER, textspace);
