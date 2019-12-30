@@ -105,7 +105,7 @@ public class Notepad extends JFrame
             JOptionPane.showMessageDialog(f,"File saved as "+fileToSave.getAbsolutePath());
         }
     }
-    private void OpenFileUI()
+    private void OpenFileUI ()
     {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setDialogTitle("Open");
@@ -114,16 +114,18 @@ public class Notepad extends JFrame
         if (userSelection == JFileChooser.APPROVE_OPTION) {
             File fileToOpen = fileChooser.getSelectedFile();
             String extension = getExtensionForFilter(fileChooser.getFileFilter());
-            if(!fpath.endsWith(extension)) {
-                fileToOpen = new File(fpath + extension);
+            if(!((String)(fileToOpen.getName())).endsWith(extension)) {
+                fileToOpen = new File(fileToOpen.getAbsolutePath() + extension);
             }
             if (!fileToOpen.exists()) {
                 JFrame f = new JFrame ("Saved To");
                 JOptionPane.showMessageDialog(f,fileToOpen.getName()+" does not exist in this folder.");
             }
-            fpath = fileToOpen.getAbsolutePath();
-            frame.setTitle("Notepad - "+fileToOpen.getName());
-            FilePresent = true;
+            else {
+                fpath = fileToOpen.getAbsolutePath();
+                frame.setTitle("Notepad - " + fileToOpen.getName());
+                FilePresent = true;
+            }
         } else {FilePresent = false;}
         try {
             BufferedReader br=new BufferedReader(new FileReader(fpath));
@@ -143,7 +145,7 @@ public class Notepad extends JFrame
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) { }
-        JOptionPane.showMessageDialog(aboutbox,"\nNotepad\n\nby Atish Ghosh\n2019\nversion 1.0 (Unstable)\n ");
+        JOptionPane.showMessageDialog(aboutbox," \nNotepad\n\nby Atish Ghosh\n2019\nversion 1.0\n ");
     }
     private void FontTypeUI ()
     {
@@ -167,10 +169,10 @@ public class Notepad extends JFrame
     {
         JFrame f = new JFrame ("Font Type");
         JOptionPane optionPane = new JOptionPane();
-        String newFontSize = JOptionPane.showInputDialog(f,"Enter Font Size", "12");
+        String newFontSize = JOptionPane.showInputDialog(f,"Enter Font Size", fontSize);
         int selected = 0;
         try {
-             selected = Integer.parseInt(newFontSize);
+            selected = Integer.parseInt(newFontSize);
         }
         catch (Exception e) {
             if ( newFontSize != null )
@@ -210,6 +212,15 @@ public class Notepad extends JFrame
         }
         else {return;}
     }
+    private void TextUI ()
+    {
+        JFrame f = new JFrame ("Theme");
+        JOptionPane optionPane = new JOptionPane();
+    }
+    private void BackgroundUI ()
+    {
+
+    }
     private void MenuBarUI ()
     {
         JMenu menu1 = new JMenu("File");
@@ -221,11 +232,14 @@ public class Notepad extends JFrame
         JMenuItem font1 = new JMenuItem("Type");
         JMenuItem font2 = new JMenuItem("Size");
         JMenuItem font3 = new JMenuItem("Style");
+        JMenu edit2 = new JMenu("Theme");
+        JMenuItem theme1 = new JMenuItem ("Text");
+        JMenuItem theme2 = new JMenuItem ("Background");
         JMenuItem file1 = new JMenuItem("New      ");
         JMenuItem file2 = new JMenuItem("Open     ");
         JMenuItem file3 = new JMenuItem("Save     ");
         JMenuItem file4 = new JMenuItem("Save As  ");
-        
+
         // JMenu "File"
         file1.setAccelerator(KeyStroke.getKeyStroke("control N"));
         file1.addActionListener(new ActionListener()
@@ -274,7 +288,7 @@ public class Notepad extends JFrame
                 } catch (Exception e) {  }
             }
         });
-        
+
         // JMenu "Edit"
         font1.addActionListener(new ActionListener()
         {
@@ -298,7 +312,22 @@ public class Notepad extends JFrame
         });
         edit1.add(font3);
         menu2.add(edit1);
-        
+        theme1.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent arg0) {
+                TextUI();
+            }
+        });
+        edit2.add(theme1);
+        theme2.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent arg0) {
+                BackgroundUI();
+            }
+        });
+        edit2.add(theme2);
+        menu2.add(edit2);
+
         // JMenu "More"
         menu3.add(more1);
         more2.addActionListener(new ActionListener()
@@ -308,6 +337,8 @@ public class Notepad extends JFrame
             }
         });
         menu3.add(more2);
+
+
         menu.add(menu1);
         menu.add(menu2);
         menu.add(menu3);
@@ -387,6 +418,7 @@ public class Notepad extends JFrame
         };
         textspace.setWrapStyleWord(true);
         MenuBarUI();
+        textspace.setFont(new Font(fontType, fontStyle, fontSize));
         spH.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         frame.getContentPane().add(BorderLayout.NORTH, menu);
         frame.getContentPane().add(BorderLayout.CENTER, textspace);
