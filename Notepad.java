@@ -151,7 +151,7 @@ public class Notepad extends JFrame
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) { }
-        JOptionPane.showMessageDialog(aboutbox," \nNotepad\n\nby Atish Ghosh\n2019\nversion 1.0\n ");
+        JOptionPane.showMessageDialog(aboutbox," \nNotepad\n\nby Atish Ghosh\n2020\nversion 1.0\n ");
     }
     private void FontTypeUI ()
     {
