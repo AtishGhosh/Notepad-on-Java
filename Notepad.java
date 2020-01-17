@@ -24,14 +24,17 @@ public class Notepad extends JFrame
     private boolean FilePresent;
     private String fpath;
     private String fontType;
+    private String[] availableColours;
+    private int textColour;
+    private int backColour;
     private int fontStyle;
     private int fontSize;
-    Notepad ()
-    {
+    Notepad () {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) { }
-        frame = new JFrame ("Notepad");
+        } catch (Exception e) {
+        }
+        frame = new JFrame("Notepad");
         menu = new JMenuBar();
         textspace = new JTextArea();
         spV = new JScrollPane(textspace);
@@ -41,6 +44,9 @@ public class Notepad extends JFrame
         fontType = "Dialog";
         fontStyle = Font.PLAIN;
         fontSize = 12;
+        availableColours = new String[]{"Black", "Blue", "Cyan", "Dark Gray", "Gray", "Green", "Light Gray", "Magenta", "Orange", "Pink", "Red", "White", "Yellow"};
+        textColour = 0;
+        backColour = 11;
     }
     public static void main (String[] args)
     {
@@ -216,10 +222,41 @@ public class Notepad extends JFrame
     {
         JFrame f = new JFrame ("Theme");
         JOptionPane optionPane = new JOptionPane();
+        String selected = (String)optionPane.showInputDialog(f, "Select Text Colour", "Text Colour", JOptionPane.QUESTION_MESSAGE, null, availableColours, availableColours[textColour]);
+        if (selected == "Black") {textspace.setForeground(Color.BLACK); textColour=0;}
+        else if (selected == "Blue") {textspace.setForeground(Color.BLUE); textColour=1;}
+        else if (selected == "Cyan") {textspace.setForeground(Color.CYAN); textColour=2;}
+        else if (selected == "Dark Gray") {textspace.setForeground(Color.DARK_GRAY); textColour=3;}
+        else if (selected == "Gray") {textspace.setForeground(Color.GRAY); textColour=4;}
+        else if (selected == "Green") {textspace.setForeground(Color.GREEN); textColour=5;}
+        else if (selected == "Light Gray") {textspace.setForeground(Color.LIGHT_GRAY); textColour=6;}
+        else if (selected == "Magenta") {textspace.setForeground(Color.MAGENTA); textColour=7;}
+        else if (selected == "Orange") {textspace.setForeground(Color.ORANGE);  textColour=8;}
+        else if (selected == "Pink") {textspace.setForeground(Color.PINK); textColour=9;}
+        else if (selected == "Red") {textspace.setForeground(Color.RED); textColour=10;}
+        else if (selected == "White") {textspace.setForeground(Color.WHITE); textColour=11;}
+        else if (selected == "Yellow") {textspace.setForeground(Color.YELLOW); textColour=12;}
+        else return;
     }
     private void BackgroundUI ()
     {
-
+        JFrame f = new JFrame ("Theme");
+        JOptionPane optionPane = new JOptionPane();
+        String selected = (String)optionPane.showInputDialog(f, "Select Background Colour", "Background Colour", JOptionPane.QUESTION_MESSAGE, null, availableColours, availableColours[backColour]);
+        if (selected == "Black") {textspace.setBackground(Color.BLACK); backColour=0;}
+        else if (selected == "Blue") {textspace.setBackground(Color.BLUE); backColour=1;}
+        else if (selected == "Cyan") {textspace.setBackground(Color.CYAN); backColour=2;}
+        else if (selected == "Dark Gray") {textspace.setBackground(Color.DARK_GRAY); backColour=3;}
+        else if (selected == "Gray") {textspace.setBackground(Color.GRAY); backColour=4;}
+        else if (selected == "Green") {textspace.setBackground(Color.GREEN); backColour=5;}
+        else if (selected == "Light Gray") {textspace.setBackground(Color.LIGHT_GRAY); backColour=6;}
+        else if (selected == "Magenta") {textspace.setBackground(Color.MAGENTA); backColour=7;}
+        else if (selected == "Orange") {textspace.setBackground(Color.ORANGE);  backColour=8;}
+        else if (selected == "Pink") {textspace.setBackground(Color.PINK); backColour=9;}
+        else if (selected == "Red") {textspace.setBackground(Color.RED); backColour=10;}
+        else if (selected == "White") {textspace.setBackground(Color.WHITE); backColour=11;}
+        else if (selected == "Yellow") {textspace.setBackground(Color.YELLOW); backColour=12;}
+        else return;
     }
     private void MenuBarUI ()
     {
